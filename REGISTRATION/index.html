@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>SkillForge Pro | Smart Registration Portal</title>
+    <!-- Modern Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%234361ee'/%3E%3Cstop offset='100%25' stop-color='%237209b7'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='24' fill='url(%23g)'/%3E%3Cpath d='M30 35h40v8H30zM30 48h40v8H30zM30 61h25v8H30z' fill='white' opacity='0.9'/%3E%3Ccircle cx='70' cy='68' r='10' fill='white'/%3E%3C/svg%3E">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        :root {
+            --bg: #f0f4f8;
+            --surface: #ffffff;
+            --text: #0f172a;
+            --text-light: #475569;
+            --border: #e2e8f0;
+            --primary: #4361ee;
+            --primary-dark: #3b56d4;
+            --secondary: #7209b7;
+            --success: #10b981;
+            --danger: #ef4444;
+            --card-shadow: 0 12px 30px -8px rgba(0,0,0,0.08);
+            --transition: all 0.3s ease;
+            --gradient: linear-gradient(135deg, #4361ee 0%, #7209b7 100%);
+        }
+
+        body.dark {
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --text: #f1f5f9;
+            --text-light: #cbd5e1;
+            --border: #334155;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            transition: var(--transition);
+        }
+
+        /* Sidebar */
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            padding: 2rem 1.5rem;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            transition: var(--transition);
+            z-index: 100;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 2rem;
+            transition: var(--transition);
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: 800;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo i {
+            background: none;
+            -webkit-background-clip: unset;
+            color: var(--primary);
+            font-size: 1.8rem;
+        }
+
+        .nav-menu {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .nav-item {
+            padding: 0.9rem 1.2rem;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .nav-item i { width: 26px; font-size: 1.2rem; }
+        .nav-item.active, .nav-item:hover {
+            background: var(--gradient);
+            color: white;
+            transform: translateX(6px);
+        }
+
+        .theme-toggle {
+            margin-top: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.9rem 1.2rem;
+            background: var(--bg);
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--surface);
+            border-radius: 28px;
+            padding: 1.8rem;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border);
+            margin-bottom: 1.8rem;
+            transition: var(--transition);
+        }
+
+        /* Step Indicators */
+        .step-indicators {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .step-indicator {
+            padding: 0.6rem 1.5rem;
+            border-radius: 40px;
+            background: var(--bg);
+            color: var(--text-light);
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .step-indicator.active {
+            background: var(--gradient);
+            color: white;
+        }
+
+        .step {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .step.active-step {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(12px);}
+            to { opacity: 1; transform: translateY(0);}
+        }
+
+        /* Forms - Proper Spacing */
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            flex: 1;
+            min-width: 220px;
+        }
+
+        label {
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: block;
+            margin-bottom: 0.7rem;
+            color: var(--text-light);
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 0.9rem 1.2rem;
+            border-radius: 18px;
+            border: 1.5px solid var(--border);
+            background: var(--surface);
+            color: var(--text);
+            transition: var(--transition);
+            outline: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(67,97,238,0.2);
+        }
+
+        /* Photo Upload */
+        .photo-upload-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1.8rem;
+            background: var(--bg);
+            border-radius: 28px;
+            border: 2px dashed var(--border);
+            cursor: pointer;
+            transition: var(--transition);
+            margin-bottom: 2rem;
+        }
+
+        .photo-upload-area:hover {
+            border-color: var(--primary);
+            background: rgba(67,97,238,0.05);
+        }
+
+        .photo-preview {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        /* Buttons */
+        .btn-group {
+            display: flex;
+            justify-content: space-between;
+            gap: 1.2rem;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            padding: 0.9rem 2rem;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1rem;
+            border: none;
+            cursor: pointer;
+            background: var(--gradient);
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.2s;
+        }
+
+        .btn:hover { transform: translateY(-3px); filter: brightness(105%); }
+        .btn-secondary {
+            background: var(--border);
+            color: var(--text);
+        }
+
+        /* Skills Tags */
+        .skills-check-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 0.8rem 0 1.2rem 0;
+        }
+
+        .skill-tag, .hobby-tag {
+            background: var(--bg);
+            padding: 0.7rem 1.5rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: 0.2s;
+            border: 1px solid var(--border);
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .skill-tag.selected, .hobby-tag.selected {
+            background: var(--gradient);
+            color: white;
+            transform: scale(1.02);
+        }
+
+        /* Project Cards */
+        .project-item {
+            background: var(--bg);
+            padding: 1.2rem;
+            border-radius: 20px;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border);
+        }
+
+        .add-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.6rem 1.3rem;
+            border-radius: 40px;
+            cursor: pointer;
+            margin: 0.5rem 0 1rem 0;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .remove-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 0.4rem 1rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            margin-top: 0.6rem;
+        }
+
+        /* Loading */
+        .loading-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(6px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .spinner {
+            width: 55px;
+            height: 55px;
+            border: 4px solid rgba(255,255,255,0.2);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Dashboard - Horizontal Grid Cards */
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .dashboard-photo {
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 5px solid var(--primary);
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
+        }
+
+        .welcome-msg {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        /* Horizontal Grid for Dashboard */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 1.8rem;
+            margin: 2rem 0;
+        }
+
+        .dashboard-card {
+            background: var(--surface);
+            border-radius: 24px;
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 35px -12px rgba(0,0,0,0.15);
+        }
+
+        .dashboard-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--primary);
+        }
+
+        .dashboard-card h3 i {
+            font-size: 1.4rem;
+        }
+
+        .badge-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .badge {
+            background: var(--gradient);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .detail-text p {
+            margin: 14px 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.95rem;
+        }
+
+        .detail-text i {
+            width: 28px;
+            font-size: 1.1rem;
+            color: var(--primary);
+        }
+
+        .single-project-card {
+            background: var(--bg);
+            border-radius: 16px;
+            padding: 1rem;
+            margin-bottom: 0.8rem;
+            border-left: 4px solid var(--primary);
+        }
+
+        .single-project-card h4 {
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .single-project-card p {
+            font-size: 0.85rem;
+            margin: 4px 0;
+        }
+
+        .copyright {
+            text-align: center;
+            margin-top: 2rem;
+            padding: 1.2rem;
+            border-top: 1px solid var(--border);
+            color: var(--text-light);
+            font-size: 0.85rem;
+        }
+
+        .education-section {
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.8rem;
+            border-bottom: 1px dashed var(--border);
+        }
+
+        .education-section h4 {
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+
+        .resume-link {
+            background: var(--bg);
+            padding: 0.7rem 1rem;
+            border-radius: 30px;
+            display: inline-block;
+        }
+
+        .page {
+            display: none;
+        }
+
+        #registerPage {
+            display: block;
+        }
+
+        #dashboardPage {
+            display: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 75px;
+                padding: 1rem 0.5rem;
+            }
+            .sidebar .logo span, .sidebar .nav-item span, .theme-toggle span {
+                display: none;
+            }
+            .sidebar .nav-item i {
+                margin: 0 auto;
+            }
+            .main-content {
+                margin-left: 75px;
+                padding: 1rem;
+            }
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            .form-row {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            .btn-group {
+                flex-wrap: wrap;
+            }
+            .btn {
+                flex: 1;
+                justify-content: center;
+            }
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            .step-indicators {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <aside class="sidebar">
+        <div class="logo"><i class="fas fa-crown"></i> <span>SkillForge</span></div>
+        <ul class="nav-menu">
+            <li class="nav-item active" data-page="register"><i class="fas fa-user-plus"></i> <span>Register</span></li>
+            <li class="nav-item" data-page="dashboard"><i class="fas fa-chart-line"></i> <span>Dashboard</span></li>
+        </ul>
+        <div class="theme-toggle" id="themeToggle">
+            <i class="fas fa-moon"></i> <span>Dark/Light</span> <i class="fas fa-sun"></i>
+        </div>
+    </aside>
+    <main class="main-content">
+        <!-- Registration Page -->
+        <div id="registerPage" class="page">
+            <div class="card">
+                <h2 style="margin-bottom: 1.8rem; font-size: 1.8rem;"><i class="fas fa-rocket"></i> Complete Registration</h2>
+                
+                <div class="step-indicators">
+                    <div class="step-indicator active" data-step="1">1. Personal Details</div>
+                    <div class="step-indicator" data-step="2">2. Education</div>
+                    <div class="step-indicator" data-step="3">3. Skills & Projects</div>
+                </div>
+
+                <div class="step active-step" id="step1">
+                    <h3 style="font-size: 1.3rem; margin-bottom: 1.2rem;">📋 Personal Details</h3>
+                    <div class="photo-upload-area" id="photoUploadArea">
+                        <img id="photoPreview" class="photo-preview" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%23e2e8f0'/%3E%3Ctext x='50' y='67' font-size='40' text-anchor='middle' fill='%2394a3b8'%3E📷%3C/text%3E%3C/svg%3E">
+                        <i class="fas fa-cloud-upload-alt" style="font-size: 1.8rem; color: var(--primary); margin: 8px 0;"></i>
+                        <span style="font-size: 0.85rem;">Click to upload profile photo</span>
+                        <input type="file" id="profilePhoto" accept="image/*" style="display: none;">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label>First Name *</label><input type="text" id="firstName" placeholder="John"></div>
+                        <div class="form-group"><label>Middle Name</label><input type="text" id="middleName" placeholder="Optional"></div>
+                        <div class="form-group"><label>Last Name *</label><input type="text" id="lastName" placeholder="Doe"></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label><i class="fas fa-envelope"></i> Email ID *</label><input type="email" id="email" placeholder="john@example.com"></div>
+                        <div class="form-group"><label><i class="fas fa-phone"></i> Mobile Number *</label><input type="tel" id="mobile" placeholder="+91 9876543210"></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label><i class="fas fa-calendar"></i> Date of Birth</label><input type="date" id="dob"></div>
+                        <div class="form-group"><label><i class="fas fa-venus-mars"></i> Gender</label><select id="gender"><option>Male</option><option>Female</option><option>Other</option></select></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label><i class="fas fa-globe"></i> Country</label><select id="country"><option value="">Select Country</option></select></div>
+                        <div class="form-group"><label><i class="fas fa-map-marker-alt"></i> State</label><select id="state"><option value="">Select State</option></select></div>
+                        <div class="form-group"><label><i class="fas fa-city"></i> City</label><select id="city"><option value="">Select City</option></select></div>
+                    </div>
+                    <div class="form-group"><label><i class="fas fa-home"></i> Address</label><textarea rows="2" id="address" placeholder="Street, Apartment, etc"></textarea></div>
+                </div>
+
+                <div class="step" id="step2">
+                    <h3 style="font-size: 1.3rem; margin-bottom: 1.2rem;">🎓 Education Details</h3>
+                    
+                    <div class="education-section">
+                        <h4><i class="fas fa-school"></i> Class 10th</h4>
+                        <div class="form-group" style="margin-bottom: 1rem;"><input id="school10" placeholder="School Name"></div>
+                        <div class="form-row">
+                            <div class="form-group"><select id="board10"><option>CBSE</option><option>ICSE</option><option>State Board</option></select></div>
+                            <div class="form-group"><input type="number" id="percentage10" placeholder="Percentage" step="0.01"></div>
+                        </div>
+                    </div>
+
+                    <div class="education-section">
+                        <h4><i class="fas fa-graduation-cap"></i> Class 12th</h4>
+                        <div class="form-group" style="margin-bottom: 1rem;"><input id="school12" placeholder="School/College Name"></div>
+                        <div class="form-row">
+                            <div class="form-group"><select id="board12"><option>CBSE</option><option>ICSE</option><option>State Board</option></select></div>
+                            <div class="form-group"><select id="stream12"><option>Science (PCM)</option><option>Science (PCB)</option><option>Commerce</option><option>Arts</option></select></div>
+                            <div class="form-group"><input type="number" id="percentage12" placeholder="Percentage" step="0.01"></div>
+                        </div>
+                    </div>
+
+                    <div class="education-section">
+                        <h4><i class="fas fa-university"></i> Graduation</h4>
+                        <div class="form-group" style="margin-bottom: 1rem;"><select id="qualification"><option>B.Tech</option><option>B.E</option><option>B.Sc</option><option>BCA</option><option>MBA</option><option>MCA</option></select></div>
+                        <div class="form-group" style="margin-bottom: 1rem;"><input id="collegeName" placeholder="College/University Name"></div>
+                        <div class="form-row">
+                            <div class="form-group"><select id="passYear"><option>2024</option><option>2023</option><option>2022</option><option>2021</option><option>2020</option></select></div>
+                            <div class="form-group"><input id="percentage" placeholder="Percentage/CGPA"></div>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 1rem;"><label><i class="fas fa-briefcase"></i> Internship Details</label><textarea id="internship" rows="2" placeholder="Company, role, duration..."></textarea></div>
+                    <div class="form-group"><label><i class="fas fa-certificate"></i> Certifications</label><input id="certificates" placeholder="AWS, Google, etc (comma separated)"></div>
+                </div>
+
+                <div class="step" id="step3">
+                    <h3 style="font-size: 1.3rem; margin-bottom: 1.2rem;">💡 Skills & Projects</h3>
+                    <div class="form-group"><label><i class="fas fa-code"></i> Technical Skills</label><div id="skillsContainer" class="skills-check-group"></div></div>
+                    <div class="form-group"><label><i class="fas fa-heart"></i> Hobbies</label><div id="hobbiesContainer" class="skills-check-group"></div></div>
+                    <div class="form-group"><label><i class="fas fa-project-diagram"></i> Projects</label>
+                        <div id="projectsContainer"></div>
+                        <button type="button" class="add-btn" id="addProjectBtn"><i class="fas fa-plus"></i> Add Project</button>
+                    </div>
+                    <div class="form-group"><label><i class="fas fa-file-pdf"></i> Upload Resume</label><input type="file" id="resumeFile" accept=".pdf,.doc,.docx"></div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-secondary" id="prevBtn" disabled><i class="fas fa-arrow-left"></i> Previous</button>
+                    <button class="btn" id="nextBtn">Next <i class="fas fa-arrow-right"></i></button>
+                    <button class="btn" id="submitBtn" style="display: none;">✨ Submit <i class="fas fa-check-circle"></i></button>
+                </div>
+            </div>
+            <div class="copyright">© 2026 By MitSoni | SkillForge Pro</div>
+        </div>
+
+        <!-- Dashboard Page with Horizontal Grid -->
+        <div id="dashboardPage" class="page">
+            <div class="card">
+                <div class="profile-header">
+                    <img id="dashPhoto" class="dashboard-photo" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='130' height='130' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%23e2e8f0'/%3E%3Ctext x='50' y='67' font-size='40' text-anchor='middle' fill='%2394a3b8'%3E📷%3C/text%3E%3C/svg%3E">
+                    <div>
+                        <h1 class="welcome-msg" id="welcomeMsg">Welcome back!</h1>
+                        <p style="font-size: 1.2rem; margin-top: 8px;" id="fullNameDisplay"></p>
+                        <p style="margin-top: 4px;"><i class="fas fa-envelope"></i> <span id="emailDisplay"></span> &nbsp;|&nbsp; <i class="fas fa-phone"></i> <span id="mobileDisplay"></span></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-grid">
+                <div class="dashboard-card"><h3><i class="fas fa-user-circle"></i> Personal Information</h3><div id="personalInfoCard" class="detail-text"></div></div>
+                <div class="dashboard-card"><h3><i class="fas fa-graduation-cap"></i> Education</h3><div id="educationCard" class="detail-text"></div></div>
+                <div class="dashboard-card"><h3><i class="fas fa-code"></i> Skills & Hobbies</h3><div id="skillsBadges"></div></div>
+                <div class="dashboard-card"><h3><i class="fas fa-project-diagram"></i> Projects</h3><div id="projectsList"></div></div>
+                <div class="dashboard-card"><h3><i class="fas fa-file-alt"></i> Resume</h3><div id="resumeDisplay"></div></div>
+            </div>
+
+            <div class="btn-group" style="justify-content: flex-start;">
+                <button class="btn" id="editProfileBtn"><i class="fas fa-edit"></i> Edit Profile</button>
+                <button class="btn btn-secondary" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </div>
+            <div class="copyright">© 2026 By MitSoni | SkillForge Pro</div>
+        </div>
+    </main>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
